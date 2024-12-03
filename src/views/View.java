@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import services.TaskService;
 import models.Task;
@@ -16,6 +17,7 @@ public class View extends JFrame {
     private JTextArea taskDescriptionField; // Champ de texte pour la description
     private JButton addButton, modifyButton, deleteButton; // Boutons d'action
     private TaskService service = new TaskService();// Service de Backend
+    private Boolean isTasksListEmpty;
 
     public View() {
         setTitle("To-Do List");
@@ -24,6 +26,29 @@ public class View extends JFrame {
         setLayout(new BorderLayout());
 
         taskListModel = new DefaultListModel<>();
+
+        Task info_task = new Task("INFO", "No Tasks Found !");
+        ArrayList<Task> tasks = (ArrayList<Task>) service.getTasks();
+        try {
+            isTasksListEmpty = tasks.isEmpty();
+
+        } catch (java.lang.NullPointerException e) {
+            isTasksListEmpty = true;
+
+        }
+
+        if (isTasksListEmpty) {
+            taskListModel.addElement(info_task);
+
+        } else {
+
+            for (Task task : tasks) {
+                taskListModel.addElement(task);
+
+            }
+
+        }
+
         taskList = new JList<>(taskListModel);
 
         add(new JScrollPane(taskList), BorderLayout.CENTER);
@@ -60,6 +85,11 @@ public class View extends JFrame {
                 String title = taskTitleField.getText().trim();
                 String description = taskDescriptionField.getText().trim();
                 if (!title.isEmpty() && !description.isEmpty()) {
+
+                    if (isTasksListEmpty) {
+                        taskListModel.removeElement(info_task);
+                    }
+
                     Task newTask = new Task(title, description);
                     service.createTask(newTask);
 
@@ -83,7 +113,9 @@ public class View extends JFrame {
                     String description = taskDescriptionField.getText().trim();
                     if (!title.isEmpty() && !description.isEmpty()) {
                         Task updateTask = new Task(title, description);
+
                         service.updateTask(updateTask);
+
                         taskListModel.set(selectedIndex, updateTask);
                         taskTitleField.setText("");
                         taskDescriptionField.setText("");

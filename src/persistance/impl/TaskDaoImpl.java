@@ -28,7 +28,7 @@ public class TaskDaoImpl implements TaskDAO {
 
         try {
 
-            preparedStatement = connection.prepareStatement("SELECT * FROM task");
+            preparedStatement = connection.prepareStatement("SELECT * FROM task ORDER BY last_update ASC ;");
             resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
@@ -100,6 +100,7 @@ public class TaskDaoImpl implements TaskDAO {
         return task != null ? task : null;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void updateTask(Task task) {
         try {
@@ -163,7 +164,7 @@ public class TaskDaoImpl implements TaskDAO {
     @Override
     public void createTask(Task task) {
         try {
-            String sql = "INSERT INTO task (title, description,last_update,date_created) VALUES (?, ?,?,?)";
+            String sql = "INSERT INTO task (title, description,date_created,last_update) VALUES (?,?,?,?)";
             preparedStatement = connection.prepareStatement(sql);
 
             // Set values for the PreparedStatement
